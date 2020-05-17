@@ -3,7 +3,7 @@ Phi.tilde<-function(x){
   return(res)
 }
 
-IVW<-function(beta.exposure, beta.outcome, se.exposure, se.outcome, alpha=0.05, pval.selection=NULL,lambda=0){
+ivw<-function(beta.exposure, beta.outcome, se.exposure, se.outcome, alpha=0.05, pval.selection=NULL,lambda=0){
   if(lambda==0){
     ind<-1:length(beta.exposure)
   }else if (lambda>0){
@@ -129,13 +129,13 @@ var.divw<-function(lambda,pval.selection, beta, se.ratio, mu, tau.square, se.out
 #'
 #' df<-data_gen_summary("case1")
 #' attach(df)
-#' lambda.opt<-mr.eo(sqrt(2*log(1119)), beta.exposure, beta.outcome, se.exposure, se.outcome, pval.selection)$lambda.opt
+#' lambda.opt<-mr.eo(0, beta.exposure, beta.outcome, se.exposure, se.outcome, pval.selection)$lambda.opt
 #' mr.divw(beta.exposure, beta.outcome, se.exposure, se.outcome, pval.selection=pval.selection, lambda=lambda.opt)
 #' detach(df)
 #'
 #' data(bmi.cad)
 #' attach(bmi.cad)
-#' lambda.opt<-mr.eo(sqrt(2*log(1119)), beta.exposure, beta.outcome, se.exposure, se.outcome, pval.selection)$lambda.opt
+#' lambda.opt<-mr.eo(0, beta.exposure, beta.outcome, se.exposure, se.outcome, pval.selection)$lambda.opt
 #' mr.divw(beta.exposure, beta.outcome, se.exposure, se.outcome, pval.selection=pval.selection, lambda=lambda.opt)
 #' detach(bmi.cad)
 #'
@@ -348,5 +348,59 @@ data_gen_individual<-function(case=c("case4","case5","case6","case7"),true_var=F
   full_df$pval.selection<-2*pnorm(abs(full_df$beta.selection)/full_df$se.selection,lower.tail = FALSE)
   full_df$z.exposure<-full_df$beta.exposure/full_df$se.exposure
   return(full_df)
+}
+
+#' Published Table 4
+#'
+#' @return A table
+#'
+#' @export
+#' @examples
+#' table_publish()
+#'
+table_publish<-function(){
+  res<-matrix(data=NA, nrow = 6, ncol=5)
+  rownames(res)<-c("lambda","n_IV","condition","IVW","dIVW","dIVW_alpha")
+  res[1,1:3]<-c(0, 5.45, round(sqrt(2*log(1119)),2))
+  data("bmi.cad")
+  attach(bmi.cad)
+  tmp<-ivw(beta.exposure,beta.outcome,se.exposure,se.outcome,pval.selection = pval.selection,lambda=0)
+  res[4,1]<-paste0(round(tmp$beta.hat,3)," (",round(tmp$beta.se,3),")")
+  res[2,1]<-tmp$n.IV
+  tmp<-ivw(beta.exposure,beta.outcome,se.exposure,se.outcome,pval.selection = pval.selection,lambda=5.45)
+  res[4,2]<-paste0(round(tmp$beta.hat,3)," (",round(tmp$beta.se,3),")")
+  res[2,2]<-tmp$n.IV
+  tmp<-ivw(beta.exposure,beta.outcome,se.exposure,se.outcome,pval.selection = pval.selection,lambda=sqrt(2*log(1119)))
+  res[4,3]<-paste0(round(tmp$beta.hat,3)," (",round(tmp$beta.se,3),")")
+  res[2,3]<-tmp$n.IV
+  tmp<-mr.divw(beta.exposure,beta.outcome,se.exposure,se.outcome,pval.selection = pval.selection,lambda=0)
+  res[5,1]<-paste0(round(tmp$beta.hat,3)," (",round(tmp$beta.se,3),")")
+  res[3,1]<-round(tmp$condition,1)
+  tmp<-mr.divw(beta.exposure,beta.outcome,se.exposure,se.outcome,pval.selection = pval.selection,lambda=5.45)
+  res[5,2]<-paste0(round(tmp$beta.hat,3)," (",round(tmp$beta.se,3),")")
+  res[3,2]<-round(tmp$condition,1)
+  tmp<-mr.divw(beta.exposure,beta.outcome,se.exposure,se.outcome,pval.selection = pval.selection,lambda=sqrt(2*log(1119)))
+  res[5,3]<-paste0(round(tmp$beta.hat,3)," (",round(tmp$beta.se,3),")")
+  res[3,3]<-round(tmp$condition,1)
+  lambda.opt<-mr.eo(sqrt(2*log(1119)),beta.exposure,beta.outcome,se.exposure,se.outcome,pval.selection)$lambda.opt
+  res[1,4]<-round(lambda.opt,2)
+  tmp<-mr.divw(beta.exposure,beta.outcome,se.exposure,se.outcome,pval.selection = pval.selection,lambda=lambda.opt)
+  res[5,4]<-paste0(round(tmp$beta.hat,3)," (",round(tmp$beta.se,3),")")
+  res[3,4]<-round(tmp$condition,1)
+  res[2,4]<-tmp$n.IV
+  tmp<-mr.divw(beta.exposure,beta.outcome,se.exposure,se.outcome,pval.selection = pval.selection,lambda=0,over.dispersion = TRUE)
+  res[6,1]<-paste0(round(tmp$beta.hat,3)," (",round(tmp$beta.se,3),")")
+  tmp<-mr.divw(beta.exposure,beta.outcome,se.exposure,se.outcome,pval.selection = pval.selection,lambda=5.45,over.dispersion = TRUE)
+  res[6,2]<-paste0(round(tmp$beta.hat,3)," (",round(tmp$beta.se,3),")")
+  tmp<-mr.divw(beta.exposure,beta.outcome,se.exposure,se.outcome,pval.selection = pval.selection,lambda=sqrt(2*log(1119)),over.dispersion = TRUE)
+  res[6,3]<-paste0(round(tmp$beta.hat,3)," (",round(tmp$beta.se,3),")")
+  lambda.opt<-mr.eo(sqrt(2*log(1119)),beta.exposure,beta.outcome,se.exposure,se.outcome,pval.selection,TRUE)$lambda.opt
+  res[1,5]<-round(lambda.opt,2)
+  tmp<-mr.divw(beta.exposure,beta.outcome,se.exposure,se.outcome,pval.selection = pval.selection,lambda=lambda.opt,over.dispersion = TRUE)
+  res[6,4]<-paste0(round(tmp$beta.hat,3)," (",round(tmp$beta.se,3),")")
+  res[2,5]<-tmp$n.IV
+  res[3,5]<-round(tmp$condition,1)
+  detach(bmi.cad)
+  return(res)
 }
 
