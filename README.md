@@ -1,4 +1,4 @@
-# mr.divw
+# mr.divw: Debiased Inverse-Variance Weighted Estimator in Two-Sample Summary-Data Mendelian Randomization
 Debiased Inverse-Variance Weighted Estimator in Two-Sample Summary-Data Mendelian Randomization
 
 ## Setup
