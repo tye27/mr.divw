@@ -41,13 +41,13 @@ MR-EO Algorithm to Adaptively Find the Optimal Z-score Threhold.
 
 df<-data_gen_summary("case1")
 attach(df)
-lambda.opt<-mr.eo(0, beta.exposure, beta.outcome, se.exposure, se.outcome, pval.selection)$lambda.opt
+lambda.opt<-mr.eo(sqrt(2*log(1119)), beta.exposure, beta.outcome, se.exposure, se.outcome, pval.selection)$lambda.opt
 mr.divw(beta.exposure, beta.outcome, se.exposure, se.outcome, pval.selection=pval.selection, lambda=lambda.opt)
 detach(df)
 
 data(bmi.cad)
 attach(bmi.cad)
-lambda.opt<-mr.eo(0, beta.exposure, beta.outcome, se.exposure, se.outcome, pval.selection)$lambda.opt
+lambda.opt<-mr.eo(sqrt(2*log(1119)), beta.exposure, beta.outcome, se.exposure, se.outcome, pval.selection)$lambda.opt
 mr.divw(beta.exposure, beta.outcome, se.exposure, se.outcome, pval.selection=pval.selection, lambda=lambda.opt)
 detach(bmi.cad)
 
