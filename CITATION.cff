@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "Please cite the package as below."
+authors:
+  - family-names: Ye
+    given-names: Ting
+  - family-names: Shao
+    given-names: Jun
+  - family-names: Kang
+    given-names: Hyunseung
+title: "mr.divw: Debiased Inverse-Variance Weighted Estimator in Two-Sample Summary-Data Mendelian Randomization"
+version: 0.1.0
+doi: 10.5281/zenodo.8331799
+date-released: 2023-09-09
