@@ -1,3 +1,39 @@
+#'  Perform debiased adjusted inverse-variance weighted (adIVW) estimator for summary-data multivariable Mendelian randomization
+#'
+#'
+#' @param beta.exposure A data.frame or matrix. Each row contains the estimated marginal effect of a SNP on K exposures, usually obtained from a GWAS
+#' @param se.exposure A data.frame or matrix of estimated standard errors of beta.exposure
+#' @param beta.outcome A vector of the estimated marginal effect of a SNP on outcome, usually obtained from a GWAS
+#' @param se.outcome A vector of estimated standard errors of beta.outcome
+#' @param gen_cov If the exposure and outcome datasets are non-overlapping, then provide a K-by-K matrix for the estimated shared correlation matrix between the effect of the genetic variants on each exposure, where K is the number of exposure. The correlations can either be estimated, be assumed to be zero, or fixed at zero using non-overlapping samples of each exposure GWAS. Otherwise, provide a (K+1)-by-(K+1) correlation matrix where the last row and column corresponds to the SNP-outcome associations. Default input is NULL, meaning that an identity matrix is used as the correlation matrix.
+#' @param phi_cand A vector of tuning parameters for adIVW estimator. Default is 0, meaning that dIVW estimator is performed. To use the recommended set for the tuning parameter, simply set phi_cand = NULL.
+#' @param overlap Whether or not the exposure and outcome datasets are overlapping. Default is FALSE.
+#'
+#' @return A list with elements
+#' \item{beta.hat}{Estimated direct effects of each exposure on the outcome}
+#' \item{beta.se}{Estimated standard errors of beta.hat}
+#' \item{iv_strength_parameter}{The minimum eigenvalue of the sample IV strength matrix, which quantifies the IV strength in the sample}
+#' \iten{phi_selected}{The selected tuning parameter for the adIVW estimator}
+#' @import MVMR
+#' @export
+#'
+#' @examples
+#' library(MVMR)
+#' data("rawdat_mvmr")
+#' beta.exposure <- rawdat_mvmr[,c("LDL_beta","HDL_beta","Trg_beta")]
+#' se.exposure <- rawdat_mvmr[,c("LDL_se","HDL_se","Trg_se")]
+#' beta.outcome <- rawdat_mvmr$SBP_beta
+#' se.outcome <- rawdat_mvmr$SBP_se
+#' P <- matrix(0.3, nrow = 3, ncol = 3)
+#' diag(P) <- 1
+#' mvmr.divw(beta.exposure = beta.exposure,
+#' se.exposure = se.exposure,
+#' beta.outcome = beta.outcome,
+#' se.outcome = se.outcome,
+#' gen_cor = P,
+#' phi_cand = NULL,
+#' overlap = FALSE)
+#'
 mvmr.divw <- function(beta.exposure, se.exposure, beta.outcome, se.outcome, gen_cov = NULL, phi_cand=0, overlap = FALSE) {
   if (ncol(beta.exposure) <= 1 | ncol(se.exposure) <= 1) {stop("this function is developed for multivariable MR")}
   K <- ncol(beta.exposure)
