@@ -9,9 +9,9 @@ mvmr.divw(
   se.exposure,
   beta.outcome,
   se.outcome,
-  gen_cov = NULL,
+  gen_cor = NULL,
   phi_cand = 0,
-  overlap = FALSE
+  over.dispersion = FALSE
 )
 }
 \arguments{
@@ -23,18 +23,19 @@ mvmr.divw(
 
 \item{se.outcome}{A vector of estimated standard errors of beta.outcome}
 
-\item{gen_cov}{If the exposure and outcome datasets are non-overlapping, then provide a K-by-K matrix for the estimated shared correlation matrix between the effect of the genetic variants on each exposure, where K is the number of exposure. The correlations can either be estimated, be assumed to be zero, or fixed at zero using non-overlapping samples of each exposure GWAS. Otherwise, provide a (K+1)-by-(K+1) correlation matrix where the last row and column corresponds to the SNP-outcome associations. Default input is NULL, meaning that an identity matrix is used as the correlation matrix.}
-
 \item{phi_cand}{A vector of tuning parameters for adIVW estimator. Default is 0, meaning that dIVW estimator is performed. To use the recommended set for the tuning parameter, simply set phi_cand = NULL.}
 
-\item{overlap}{Whether or not the exposure and outcome datasets are overlapping. Default is FALSE.}
+\item{over.dispersion}{Should the model consider balanced horizontal pleiotropy. Default is FALSE}
+
+\item{gen_cov}{If the exposure and outcome datasets are non-overlapping, then provide a K-by-K matrix for the estimated shared correlation matrix between the effect of the genetic variants on each exposure, where K is the number of exposure. The correlations can either be estimated, be assumed to be zero, or fixed at zero using non-overlapping samples of each exposure GWAS. Otherwise, provide a (K+1)-by-(K+1) correlation matrix where the last row and column corresponds to the SNP-outcome associations. Default input is NULL, meaning that an identity matrix is used as the correlation matrix.}
 }
 \value{
 A list with elements
 \item{beta.hat}{Estimated direct effects of each exposure on the outcome}
 \item{beta.se}{Estimated standard errors of beta.hat}
 \item{iv_strength_parameter}{The minimum eigenvalue of the sample IV strength matrix, which quantifies the IV strength in the sample}
-\iten{phi_selected}{The selected tuning parameter for the adIVW estimator}
+\item{phi_selected}{The selected tuning parameter for the adIVW estimator}
+\item{tau.square}{Overdispersion parameter if \code{over.dispersion=TRUE}}
 }
 \description{
 Perform debiased adjusted inverse-variance weighted (adIVW) estimator for summary-data multivariable Mendelian randomization
@@ -54,6 +55,6 @@ beta.outcome = beta.outcome,
 se.outcome = se.outcome,
 gen_cor = P,
 phi_cand = NULL,
-overlap = FALSE)
+over.dispersion = FALSE)
 
 }
