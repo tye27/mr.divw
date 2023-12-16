@@ -53,11 +53,7 @@ mvmr.divw <- function(beta.exposure, se.exposure, beta.outcome, se.outcome, gen_
   # diagonal W matrix
   W<- diag(se.outcome^(-2))
   # create a list of Sigma Xj matrices
-  if (!overlap) {
-    Vj <- lapply(1:p, function(j) diag(se.exposure[j,]) %*% P %*% diag(se.exposure[j,]))
-  } else {
-    Vj <- lapply(1:p, function(j) diag(c(se.exposure[j,],se.outcome[j])) %*% P %*% diag(c(se.exposure[j,],se.outcome[j])))
-  }
+  Vj <- lapply(1:p, function(j) diag(se.exposure[j,]) %*% P %*% diag(se.exposure[j,]))
   # calculate square root inverse of P
   P_eigen <- eigen(P)
   P_root_inv <- P_eigen$vectors %*% diag(1/sqrt(P_eigen$values)) %*% t(P_eigen$vectors)
@@ -70,7 +66,7 @@ mvmr.divw <- function(beta.exposure, se.exposure, beta.outcome, se.outcome, gen_
     beta.exposure.V %*% t(beta.exposure.V)})) - p*diag(K)
   iv_strength_parameter <- min(eigen(IV_strength_matrix/sqrt(p))$values)
   # get V matrix
-  V <- Reduce("+",lapply(1:p, function(j) {Vj[[j]][1:K,1:K] * (se.outcome[j]^(-2))}))
+  V <- Reduce("+",lapply(1:p, function(j) {Vj[[j]] * (se.outcome[j]^(-2))}))
   # get M matrix
   M <- t(beta.exposure)%*%W%*%beta.exposure
   # get M-V matrix
