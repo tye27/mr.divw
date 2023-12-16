@@ -4,8 +4,16 @@
 \alias{mr.eo}
 \title{MR-EO Algorithm to Adaptively Find the Optimal Z-score Threhold.}
 \usage{
-mr.eo(lambda.start, beta.exposure, beta.outcome, se.exposure, se.outcome,
-  pval.selection, over.dispersion = FALSE, max_opt_iter = 5)
+mr.eo(
+  lambda.start,
+  beta.exposure,
+  beta.outcome,
+  se.exposure,
+  se.outcome,
+  pval.selection,
+  over.dispersion = FALSE,
+  max_opt_iter = 5
+)
 }
 \arguments{
 \item{lambda.start}{Initial value for lambda (the z-score threshold).}

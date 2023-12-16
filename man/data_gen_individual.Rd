@@ -4,8 +4,10 @@
 \alias{data_gen_individual}
 \title{Summary Statistics from Simulated Individual-level data}
 \usage{
-data_gen_individual(case = c("case4", "case5", "case6", "case7"),
-  true_var = FALSE)
+data_gen_individual(
+  case = c("case4", "case5", "case6", "case7"),
+  true_var = FALSE
+)
 }
 \arguments{
 \item{case}{Simulation scenario used in Section 5.3 in Ye et al., (2020).}

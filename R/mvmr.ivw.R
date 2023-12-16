@@ -4,7 +4,7 @@
 #' @param se.exposure A data.frame or matrix of estimated standard errors of beta.exposure
 #' @param beta.outcome A vector of the estimated marginal effect of a SNP on outcome, usually obtained from a GWAS
 #' @param se.outcome A vector of estimated standard errors of beta.outcome
-#' @param P A K-by-K matrix for the estimated shared correlation matrix between the effect of the genetic variants on each exposure, where K is the number of exposure. The correlations can either be estimated, be assumed to be zero, or fixed at zero using non-overlapping samples of each exposure GWAS. An identity correlation matrix is used by default.
+#' @param gen_cor A K-by-K matrix for the estimated shared correlation matrix between the effect of the genetic variants on each exposure, where K is the number of exposure. The correlations can either be estimated, be assumed to be zero, or fixed at zero using non-overlapping samples of each exposure GWAS. Default input is NULL, meaning that an identity matrix is used as the correlation matrix.
 #'
 #' @return A list with elements
 #' \item{beta.hat}{Estimated direct effects of each exposure on the outcome}
@@ -26,13 +26,14 @@
 #' se.exposure = se.exposure,
 #' beta.outcome = beta.outcome,
 #' se.outcome = se.outcome,
-#' P = P)
+#' gen_cor = P)
 #'
-mvmr.ivw <- function(beta.exposure, se.exposure, beta.outcome, se.outcome, P = NULL) {
+mvmr.ivw <- function(beta.exposure, se.exposure, beta.outcome, se.outcome, gen_cor = NULL) {
   if (ncol(beta.exposure) <= 1 | ncol(se.exposure) <= 1) {stop("either beta.exposure or se.exposure only has one column; if univariable MR is performed, please use univariable MR methods.")}
   # the number of exposures
   K <- ncol(beta.exposure)
-  if (is.null(P)) {P <- diag(K)}
+  if (is.null(gen_cor)) {P <- diag(K)} else {P <- as.matrix(gen_cor)}
+  if (any(diag(P) != 1) | any(abs(P) > 1)) {stop("You might enter a covariance matrix, but a correlation matrix is required.")}
   if (ncol(P) != ncol(beta.exposure)) {stop("The shared correlation matrix has a different number of columns than the input beta.exposure")}
   if (nrow(beta.exposure) != length(beta.outcome)) {stop("The number of SNPs in beta.exposure and beta.outcome is different")}
   beta.exposure <- as.matrix(beta.exposure)

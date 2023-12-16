@@ -1,12 +1,13 @@
 Package: mr.divw
 Type: Package
-Title: What the Package Does (Title Case)
+Title: debiased inverse-variance weighted estimator for univariable and multivariable Mendelian randomization
 Version: 0.1.0
-Author: Who wrote it
+Author: c(person("Ting", "Ye", , "tingye1@uw.edu", role = c("aut", "cre")),
+          person("Yinxiang", "Wu", , "wuyx@uw.edu", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0001-7806-6999")))
 Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Description: Perform causal effect estimation for summary-data Mendelian randomization using IVW, dIVW and adIVW estimators.
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.1.1
+RoxygenNote: 7.2.3

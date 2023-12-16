@@ -4,9 +4,17 @@
 \alias{mr.divw}
 \title{Main function for dIVW}
 \usage{
-mr.divw(beta.exposure, beta.outcome, se.exposure, se.outcome,
-  alpha = 0.05, pval.selection = NULL, lambda = 0,
-  over.dispersion = FALSE, diagnostics = FALSE)
+mr.divw(
+  beta.exposure,
+  beta.outcome,
+  se.exposure,
+  se.outcome,
+  alpha = 0.05,
+  pval.selection = NULL,
+  lambda = 0,
+  over.dispersion = FALSE,
+  diagnostics = FALSE
+)
 }
 \arguments{
 \item{beta.exposure}{A vector of SNP effects on the exposure vairable, usually obtained from a GWAS}
