@@ -13,7 +13,7 @@
 #' \item{beta.hat}{Estimated direct effects of each exposure on the outcome}
 #' \item{beta.se}{Estimated standard errors of beta.hat}
 #' \item{iv_strength_parameter}{The minimum eigenvalue of the sample IV strength matrix, which quantifies the IV strength in the sample}
-#' \iten{phi_selected}{The selected tuning parameter for the adIVW estimator}
+#' \item{phi_selected}{The selected tuning parameter for the adIVW estimator}
 #' \item{tau.square}{Overdispersion parameter if \code{over.dispersion=TRUE}}
 #' @import MVMR
 #' @export
@@ -35,7 +35,7 @@
 #' phi_cand = NULL,
 #' over.dispersion = FALSE)
 #'
-mvmr.divw <- function(beta.exposure, se.exposure, beta.outcome, se.outcome, gen_cov = NULL, phi_cand=0, over.dispersion = FALSE) {
+mvmr.divw <- function(beta.exposure, se.exposure, beta.outcome, se.outcome, gen_cor = NULL, phi_cand=0, over.dispersion = FALSE) {
   if (ncol(beta.exposure) <= 1 | ncol(se.exposure) <= 1) {stop("this function is developed for multivariable MR")}
   K <- ncol(beta.exposure)
   if (is.null(gen_cor)) {
@@ -57,7 +57,7 @@ mvmr.divw <- function(beta.exposure, se.exposure, beta.outcome, se.outcome, gen_
   # calculate square root inverse of P
   P_eigen <- eigen(P)
   P_root_inv <- P_eigen$vectors %*% diag(1/sqrt(P_eigen$values)) %*% t(P_eigen$vectors)
-  Vj_root_inv <- lapply(1:p, function(x) {
+  Vj_root_inv <- lapply(1:p, function(j) {
     P_root_inv %*% diag(1/se.exposure[j,])
   })
   # calcualte IV strenght parameter
@@ -84,14 +84,15 @@ mvmr.divw <- function(beta.exposure, se.exposure, beta.outcome, se.outcome, gen_
   ))
   # (a)dIVW for independent datasets
   beta.est <- MV.l.inv.long %*% t(beta.exposure) %*% W %*% (beta.outcome)
-  prof.lik <- sapply(1:lambda_length, function(l) {
+  prof.lik <- sapply(1:phi_length, function(l) {
         beta.hat <- beta.est[(1+(l-1)*K):(l*K)]
         bvb <- sapply(1:p, function(j) t(beta.hat) %*% Vj[[j]] %*% beta.hat)
         if (over.dispersion) {
-          tau2 <- ((lapply(1:p, function(j) {
+          tau2 <- Reduce("+",lapply(1:p, function(j) {
                   v <- Vj[[j]] * (se.outcome[j]^(-2))
                   (beta.outcome[j] - beta.exposure[j,] %*% beta.hat)^2*se.outcome[j]^(-2) - 1 - as.numeric(t(beta.hat) %*% v %*% beta.hat)
-        }) %>% Reduce("+",.))/sum(diag(W))) %>% as.numeric(.)
+        }))/sum(diag(W))
+          tau2 <- as.numeric(tau2)
         } else {
           tau2 <- 0
         }
@@ -102,20 +103,21 @@ mvmr.divw <- function(beta.exposure, se.exposure, beta.outcome, se.outcome, gen_
   MV.l.inv <- MV_eigen$vectors %*% diag(1/(MV_eigvalues + phi_selected/MV_eigvalues)) %*% t(MV_eigen$vectors)
   mvmr.adIVW <- MV.l.inv %*% t(beta.exposure) %*% W %*% beta.outcome
   if (over.dispersion) {
-    tau2_adivw <- ((lapply(1:p, function(j) {
+    tau2_adivw <- Reduce("+",lapply(1:p, function(j) {
       v <- Vj[[j]] * (se.outcome[j]^(-2))
       (beta.outcome[j] - beta.exposure[j,] %*% mvmr.adIVW)^2*se.outcome[j]^(-2) - 1 - as.numeric(t(mvmr.adIVW) %*% v %*% mvmr.adIVW)
-      }) %>% Reduce("+",.))/sum(diag(W))) %>% as.numeric(.)
+      }))/sum(diag(W))
+    tau2_adivw <- as.numeric(tau2_adivw)
   } else {
     tau2_adivw <- 0
   }
-  adIVW_Vt <- lapply(1:p, function(j) {
+  adIVW_Vt <- Reduce("+",lapply(1:p, function(j) {
     m <- beta.exposure[j,] %*% t(beta.exposure[j,]) * (se.outcome[j]^(-2))
     v <- Vj[[j]]*(se.outcome[j]^(-2))
     bvb <- as.numeric(t(mvmr.adIVW) %*% v %*% mvmr.adIVW)
     vbbv <- v %*% mvmr.adIVW %*% t(mvmr.adIVW) %*% v
     m*(1+bvb+tau2_adivw*se.outcome[j]^(-2)) + vbbv
-  }) %>% Reduce("+",.)
+  }))
   mvmr.adIVW.se <- sqrt(diag(MV.l.inv%*%adIVW_Vt%*%MV.l.inv))
   return(list(beta.hat = mvmr.adIVW,
               beta.se = mvmr.adIVW.se,
