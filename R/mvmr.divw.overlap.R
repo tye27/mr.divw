@@ -1,4 +1,4 @@
-#'  Perform debiased adjusted inverse-variance weighted (adIVW) estimator for summary-data multivariable Mendelian randomization allowing for overlapping exposure and outcome datasets
+#'  Perform debiased adjusted inverse-variance weighted (adIVW) estimator for summary-data multivariable Mendelian randomization with overlapping exposure and outcome datasets
 #'
 #'
 #' @param beta.exposure A data.frame or matrix. Each row contains the estimated marginal effect of a SNP on K exposures, usually obtained from a GWAS
@@ -25,13 +25,11 @@
 #' se.outcome <- rawdat_mvmr$SBP_se
 #' P <- matrix(0.3, nrow = 4, ncol = 4)
 #' diag(P) <- 1
-#' mvmr.divw(beta.exposure = beta.exposure,
+#' mvmr.divw.overlap(beta.exposure = beta.exposure,
 #' se.exposure = se.exposure,
 #' beta.outcome = beta.outcome,
 #' se.outcome = se.outcome,
-#' gen_cor = P,
-#' phi_cand = NULL,
-#' over.dispersion = FALSE)
+#' gen_cor = P)
 #'
 mvmr.divw.overlap <- function(beta.exposure, se.exposure, beta.outcome, se.outcome, gen_cor = NULL, phi_cand=0) {
   if (ncol(beta.exposure) <= 1 | ncol(se.exposure) <= 1) {stop("this function is developed for multivariable MR")}
@@ -49,7 +47,7 @@ mvmr.divw.overlap <- function(beta.exposure, se.exposure, beta.outcome, se.outco
   # diagonal W matrix
   W<- diag(se.outcome^(-2))
   # create a list of Sigma Xj matrices
-  Vj <- lapply(1:p, function(j) diag(se.exposure[j,]) %*% P[1:K,1:K] %*% diag(se.exposure[j,]))
+  Vj <- lapply(1:p, function(j) diag(c(se.exposure[j,],se.outcome[j])) %*% P %*% diag(c(se.exposure[j,],se.outcome[j])))
   # calculate square root inverse of P
   P_eigen <- eigen(P[1:K,1:K])
   P_root_inv <- P_eigen$vectors %*% diag(1/sqrt(P_eigen$values)) %*% t(P_eigen$vectors)
@@ -62,7 +60,7 @@ mvmr.divw.overlap <- function(beta.exposure, se.exposure, beta.outcome, se.outco
     beta.exposure.V %*% t(beta.exposure.V)})) - p*diag(K)
   iv_strength_parameter <- min(eigen(IV_strength_matrix/sqrt(p))$values)
   # get V matrix
-  V <- Reduce("+",lapply(1:p, function(j) {Vj[[j]] * (se.outcome[j]^(-2))}))
+  V <- Reduce("+",lapply(1:p, function(j) {Vj[[j]][1:K,1:K] * (se.outcome[j]^(-2))}))
   # get M matrix
   M <- t(beta.exposure)%*%W%*%beta.exposure
   # get M-V matrix
@@ -111,6 +109,5 @@ mvmr.divw.overlap <- function(beta.exposure, se.exposure, beta.outcome, se.outco
   return(list(beta.hat = mvmr.adIVW,
               beta.se = mvmr.adIVW.se,
               iv_strength_parameter = iv_strength_parameter,
-              phi_selected = phi_selected,
-              tau.square = tau2_adivw))
+              phi_selected = phi_selected))
 }
