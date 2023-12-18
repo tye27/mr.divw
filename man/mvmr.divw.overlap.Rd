@@ -2,7 +2,7 @@
 % Please edit documentation in R/mvmr.divw.overlap.R
 \name{mvmr.divw.overlap}
 \alias{mvmr.divw.overlap}
-\title{Perform debiased adjusted inverse-variance weighted (adIVW) estimator for summary-data multivariable Mendelian randomization allowing for overlapping exposure and outcome datasets}
+\title{Perform debiased adjusted inverse-variance weighted (adIVW) estimator for summary-data multivariable Mendelian randomization with overlapping exposure and outcome datasets}
 \usage{
 mvmr.divw.overlap(
   beta.exposure,
@@ -34,7 +34,7 @@ A list with elements
 \item{phi_selected}{The selected tuning parameter for the adIVW estimator}
 }
 \description{
-Perform debiased adjusted inverse-variance weighted (adIVW) estimator for summary-data multivariable Mendelian randomization allowing for overlapping exposure and outcome datasets
+Perform debiased adjusted inverse-variance weighted (adIVW) estimator for summary-data multivariable Mendelian randomization with overlapping exposure and outcome datasets
 }
 \examples{
 library(MVMR)

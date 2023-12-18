@@ -5,7 +5,7 @@
 #' @param se.exposure A data.frame or matrix of estimated standard errors of beta.exposure
 #' @param beta.outcome A vector of the estimated marginal effect of a SNP on outcome, usually obtained from a GWAS
 #' @param se.outcome A vector of estimated standard errors of beta.outcome
-#' @param gen_cor Provide a (K+1)-by-(K+1) matrix for the estimated shared correlation matrix between the effect of the genetic variants on each exposure, where K is the number of exposure and the last index position corresponds to the outcome. The correlations can either be estimated, be assumed to be zero, or fixed at zero using non-overlapping samples of each exposure GWAS. Default input is NULL, meaning that an identity matrix is used as the correlation matrix.
+#' @param gen_cor Provide a (K+1)-by-(K+1) matrix for the estimated shared correlation matrix between the effect of the genetic variants on each exposure and the outcome, where K is the number of exposure and the last index position corresponds to the outcome. The correlations can either be estimated, be assumed to be zero, or fixed at zero using non-overlapping samples of each exposure GWAS. Default input is NULL, meaning that an identity matrix is used as the correlation matrix.
 #' @param phi_cand A vector of tuning parameters for adIVW estimator. Default is 0, meaning that dIVW estimator is performed. To use the recommended set for the tuning parameter, simply set phi_cand = NULL.
 #'
 #' @return A list with elements
