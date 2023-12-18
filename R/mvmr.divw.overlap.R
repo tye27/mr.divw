@@ -49,9 +49,9 @@ mvmr.divw.overlap <- function(beta.exposure, se.exposure, beta.outcome, se.outco
   # diagonal W matrix
   W<- diag(se.outcome^(-2))
   # create a list of Sigma Xj matrices
-  Vj <- lapply(1:p, function(j) diag(se.exposure[j,]) %*% P %*% diag(se.exposure[j,]))
+  Vj <- lapply(1:p, function(j) diag(se.exposure[j,]) %*% P[1:K,1:K] %*% diag(se.exposure[j,]))
   # calculate square root inverse of P
-  P_eigen <- eigen(P)
+  P_eigen <- eigen(P[1:K,1:K])
   P_root_inv <- P_eigen$vectors %*% diag(1/sqrt(P_eigen$values)) %*% t(P_eigen$vectors)
   Vj_root_inv <- lapply(1:p, function(j) {
     P_root_inv %*% diag(1/se.exposure[j,])
