@@ -43,7 +43,6 @@ mvmr.divw <- function(beta.exposure, se.exposure, beta.outcome, se.outcome, gen_
   } else {
     P <- as.matrix(gen_cor)
   }
-  if (any(diag(P) != 1) | any(abs(P) > 1)) {stop("You might enter a covariance matrix, but a correlation matrix is required.")}
   if (ncol(P) != ncol(beta.exposure)) {stop("The shared correlation matrix has a different number of columns than the input beta.exposure")}
   if (nrow(beta.exposure) != length(beta.outcome)) {stop("The number of SNPs in beta.exposure and beta.outcome is different")}
   beta.exposure <- as.matrix(beta.exposure)
