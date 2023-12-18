@@ -2,7 +2,7 @@
 % Please edit documentation in R/mvmr.divw.R
 \name{mvmr.divw}
 \alias{mvmr.divw}
-\title{Perform debiased adjusted inverse-variance weighted (adIVW) estimator for summary-data multivariable Mendelian randomization}
+\title{Perform debiased adjusted inverse-variance weighted (adIVW) estimator for two-sample summary-data multivariable Mendelian randomization}
 \usage{
 mvmr.divw(
   beta.exposure,
@@ -23,7 +23,7 @@ mvmr.divw(
 
 \item{se.outcome}{A vector of estimated standard errors of beta.outcome}
 
-\item{gen_cor}{If the exposure and outcome datasets are non-overlapping, then provide a K-by-K matrix for the estimated shared correlation matrix between the effect of the genetic variants on each exposure, where K is the number of exposure. The correlations can either be estimated, be assumed to be zero, or fixed at zero using non-overlapping samples of each exposure GWAS. Otherwise, provide a (K+1)-by-(K+1) correlation matrix where the last row and column corresponds to the SNP-outcome associations. Default input is NULL, meaning that an identity matrix is used as the correlation matrix.}
+\item{gen_cor}{Provide a K-by-K matrix for the estimated shared correlation matrix between the effect of the genetic variants on each exposure, where K is the number of exposure. The correlations can either be estimated, be assumed to be zero, or fixed at zero using non-overlapping samples of each exposure GWAS. Default input is NULL, meaning that an identity matrix is used as the correlation matrix.}
 
 \item{phi_cand}{A vector of tuning parameters for adIVW estimator. Default is 0, meaning that dIVW estimator is performed. To use the recommended set for the tuning parameter, simply set phi_cand = NULL.}
 
@@ -38,7 +38,7 @@ A list with elements
 \item{tau.square}{Overdispersion parameter if \code{over.dispersion=TRUE}}
 }
 \description{
-Perform debiased adjusted inverse-variance weighted (adIVW) estimator for summary-data multivariable Mendelian randomization
+Perform debiased adjusted inverse-variance weighted (adIVW) estimator for two-sample summary-data multivariable Mendelian randomization
 }
 \examples{
 library(MVMR)
