@@ -5,9 +5,10 @@
 #' @param se.exposure A data.frame or matrix of estimated standard errors of beta.exposure
 #' @param beta.outcome A vector of the estimated marginal effect of a SNP on outcome, usually obtained from a GWAS
 #' @param se.outcome A vector of estimated standard errors of beta.outcome
-#' @param gen_cor Provide a K-by-K matrix for the estimated shared correlation matrix between the effect of the genetic variants on each exposure, where K is the number of exposure. The correlations can either be estimated, be assumed to be zero, or fixed at zero using non-overlapping samples of each exposure GWAS. Default input is NULL, meaning that an identity matrix is used as the correlation matrix.
 #' @param phi_cand A vector of tuning parameters for adIVW estimator. Default is 0, meaning that dIVW estimator is performed. To use the recommended set for the tuning parameter, simply set phi_cand = NULL.
-#' @param over.dispersion Should the model consider balanced horizontal pleiotropy. Default is FALSE
+#' @param over.dispersion Should the model consider balanced horizontal pleiotropy? Default is FALSE.
+#' @param overlap Should the model consider overlapping exposure and outcome datasets? Default is FALSE.
+#' @param gen_cor If overlap = FALSE, provide a K-by-K matrix for the estimated shared correlation matrix between the effect of the genetic variants on each exposure, where K is the number of exposure. If overlap = TRUE, provide a (K+1)-by-(K+1) matrix for the estimated shared correlation matrix between the effect of the genetic variants on each exposure and the outcome, where the last index position corresponds to the outcome.  The correlations can either be estimated, be assumed to be zero, or fixed at zero. Default input is NULL, meaning that an identity matrix is used as the correlation matrix.
 #'
 #' @return A list with elements
 #' \item{beta.hat}{Estimated direct effects of each exposure on the outcome}
@@ -35,7 +36,7 @@
 #' phi_cand = NULL,
 #' over.dispersion = FALSE)
 #'
-mvmr.divw <- function(beta.exposure, se.exposure, beta.outcome, se.outcome, gen_cor = NULL, phi_cand=0, over.dispersion = FALSE, overlap = FALSE) {
+mvmr.divw <- function(beta.exposure, se.exposure, beta.outcome, se.outcome, phi_cand=0, over.dispersion = FALSE, overlap = FALSE, gen_cor = NULL) {
   if (ncol(beta.exposure) <= 1 | ncol(se.exposure) <= 1) {stop("this function is developed for multivariable MR")}
   K <- ncol(beta.exposure)
   if (is.null(gen_cor)) {
