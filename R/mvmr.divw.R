@@ -156,6 +156,7 @@ mvmr.divw <- function(beta.exposure, se.exposure, beta.outcome, se.outcome, phi_
         m*(1+bvb) + vbbv + A1 - A2 - A3 - 2 * A4 + 4 * A5
       }))
       mvmr.adIVW.se <- sqrt(diag(MV.l.inv%*%adIVW_Vt_overlap%*%MV.l.inv))
+      tau2_adivw <- NULL # current version does not allow for over-dispersion and overlapping datasets at the same time.
   }
   return(list(beta.hat = mvmr.adIVW,
               beta.se = mvmr.adIVW.se,
