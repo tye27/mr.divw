@@ -23,8 +23,7 @@
 #'
 #' It contains SNP-exposure and SNP-outcome association summary statistics from the following genome-wide association studies (GWASs):
 #' \enumerate{
-#' \item Exposure dataset: A GWAS for traditional lipids \url{http://csg.sph.umich.edu/willer/public/lipids2013/} (PubMed 24097068); A GWAS for subfractions \url{http://www.computationalmedicine.fi/data\
-#NMR_GWAS} (PubMed 27005778).
+#' \item Exposure dataset: A GWAS for traditional lipids \url{http://csg.sph.umich.edu/willer/public/lipids2013/} (PubMed 24097068); A GWAS for subfractions \url{http://www.computationalmedicine.fi/data\#NMR_GWAS} (PubMed 27005778).
 #' \item Outcome dataset: A GWAS for CAD from the CARDIoGRAMplusC4D consortium \url{http://www.cardiogramplusc4d.org/data-downloads/} (PubMed 28714975).
 #' \item Selection dataset: A GWAS for traditional lipids \url{https://www.ebi.ac.uk/gwas/studies/GCST007141} (PubMed 29507422); A GWAS for subfractions \url{http://csg.sph.umich.edu/boehnke/public/metsim-2017-lipoproteins/} (PubMed 29084231).
 #' }
@@ -32,7 +31,7 @@
 #' @docType data
 #' @usage data(hdl_subfractions)
 #'
-#' @format A \code{list} with 3 elements with the first element being a \code{data.frame} with 24 columns (see below for column descriptions), the second element being an empty dataframe, the third element being an estimated correlation matrix.
+#' @format A list with 3 elements with the first element being a data.frame with 24 columns (see below for column descriptions), the second element being an empty data.frame, the third element being an estimated correlation matrix.
 #' \describe{
 #'   \item{SNP}{SNP rsid}
 #'   \item{effect_allele}{effect allele}
