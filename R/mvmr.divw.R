@@ -115,7 +115,7 @@ mvmr.divw <- function(beta.exposure, se.exposure, beta.outcome, se.outcome, phi_
           }))/sum(diag(W))
         tau2_adivw <- as.numeric(tau2_adivw)
       } else {
-        tau2_adivw <- NULL
+        tau2_adivw <- 0
       }
       adIVW_Vt <- Reduce("+",lapply(1:p, function(j) {
         m <- beta.exposure[j,] %*% t(beta.exposure[j,]) * (se.outcome[j]^(-2))
