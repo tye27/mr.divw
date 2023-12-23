@@ -13,7 +13,9 @@ mr.divw(
   pval.selection = NULL,
   lambda = 0,
   over.dispersion = FALSE,
-  diagnostics = FALSE
+  diagnostics = FALSE,
+  overlap = FALSE,
+  gen_cor = 0
 )
 }
 \arguments{
@@ -34,6 +36,10 @@ mr.divw(
 \item{over.dispersion}{Should the model consider balanced horizontal pleiotropy. Default is FALSE}
 
 \item{diagnostics}{Should the function returns the q-q plot for assumption diagnosis. Default is FALSE}
+
+\item{overlap}{Should the model consider overlapping exposure and outcome datasets. Default is FALSE}
+
+\item{gen_cor}{If overlap = TRUE, provide an estimate of the correlation between the effect of the genetic variants on the exposure and the outcome. Default value is 0, meaning that the exposure and outcome datasets are non-overlapping.}
 }
 \value{
 A list

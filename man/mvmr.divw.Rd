@@ -46,7 +46,7 @@ Perform debiased adjusted inverse-variance weighted (adIVW) estimator for two-sa
 \examples{
 data("hdl_subfractions")
 # We are going to estimate the effect of S-HDL-P on the risk of CAS with adjustments of HDL, LDL, and TG levels
-beta.exposure <- hdl_subfractions$data[,c("gamma_exp1","gamma_exp2","gamma_exp3","gamma_exp4")]
+beta.exposure <- hdl_subfractions$data[,c("gamma_exp1","gamma_exp2","gamma_exp3","gamma_exp4")] # corresponding to SNP effects on respectively  HDL, LDL, TG, and S-HDL-P
 se.exposure <- hdl_subfractions$data[,c("se_exp1","se_exp2","se_exp3","se_exp4")]
 beta.outcome <- hdl_subfractions$data$gamma_out1
 se.outcome <- hdl_subfractions$data$se_out1
