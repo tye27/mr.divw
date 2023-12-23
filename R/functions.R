@@ -37,6 +37,8 @@ ivw<-function(beta.exposure, beta.outcome, se.exposure, se.outcome, alpha=0.05, 
 #' @param lambda The specified z-score threhold. Default is 0 (without thresholding)
 #' @param over.dispersion Should the model consider balanced horizontal pleiotropy. Default is FALSE
 #' @param diagnostics Should the function returns the q-q plot for assumption diagnosis. Default is FALSE
+#' @param overlap Should the model consider overlapping exposure and outcome datasets. Default is FALSE
+#' @param gen_cor If overlap = TRUE, provide an estimate of the correlation between the effect of the genetic variants on the exposure and the outcome. Default value is 0, meaning that the exposure and outcome datasets are non-overlapping.
 #'
 #' @return A list
 #' \describe{
@@ -60,7 +62,7 @@ ivw<-function(beta.exposure, beta.outcome, se.exposure, se.outcome, alpha=0.05, 
 #' mr.divw(beta.exposure, beta.outcome, se.exposure, se.outcome, diagnostics=TRUE)
 #' detach(bmi.cad)
 #'
-mr.divw<-function(beta.exposure, beta.outcome, se.exposure, se.outcome, alpha=0.05, pval.selection=NULL,lambda=0, over.dispersion=FALSE,diagnostics=FALSE){
+mr.divw<-function(beta.exposure, beta.outcome, se.exposure, se.outcome, alpha=0.05, pval.selection=NULL,lambda=0, over.dispersion=FALSE,diagnostics=FALSE,overlap=FALSE,gen_cor=0){
   if(lambda==0){
     ind<-1:length(beta.exposure)
   }else if (lambda>0){
@@ -70,26 +72,48 @@ mr.divw<-function(beta.exposure, beta.outcome, se.exposure, se.outcome, alpha=0.
       ind<-which(pval.selection<=pvalue)
     }
   }
-  beta_dIVW<-sum(beta.outcome[ind]*beta.exposure[ind]/(se.outcome[ind])^2)/sum((beta.exposure[ind]^2-se.exposure[ind]^2)/(se.outcome[ind])^2)
-  se.ratio<-se.exposure/se.outcome
-  mu<-beta.exposure/se.exposure
-  condition<-(mean((mu[ind])^2)-1)*sqrt(length(ind))/max(1,lambda^2)
-  tau.square<-0
-  if(over.dispersion){
-    beta_dIVW_0<-sum(beta.outcome*beta.exposure/(se.outcome)^2)/sum((beta.exposure^2-se.exposure^2)/(se.outcome)^2)
-    tau.square<-sum(((beta.outcome-beta_dIVW_0*beta.exposure)^2-se.outcome^2-beta_dIVW_0^2*se.exposure^2)/se.outcome^2)/sum(se.outcome^(-2))
-  }
-  V1<-sum((se.ratio^2*mu^2+beta_dIVW^2*se.ratio^4*(mu^2+1)+tau.square*se.ratio^2/se.outcome^2*mu^2)[ind])
-  V2<-sum((se.ratio^2*(mu^2-1))[ind])
-  var_dIVW<-V1/V2^2
-  se_dIVW<-sqrt(var_dIVW)
-  c_alpha<-qnorm(alpha/2,lower.tail = FALSE)
-  CI_dIVW.lower<-beta_dIVW-c_alpha*se_dIVW
-  CI_dIVW.upper<-beta_dIVW+c_alpha*se_dIVW
-  if(diagnostics){
-    t<-(beta.outcome-beta_dIVW*beta.exposure)/sqrt(se.outcome^2+tau.square+beta_dIVW^2*se.exposure^2)
-    qqnorm(t)
-    qqline(t)
+  if (over.dispersion==TRUE & overlap == TRUE) {stop("Current version does not allow for both balanced horizontal pleiotropy and overlapping exposure and outcome datasets.")}
+  if (overlap == FALSE) {
+    beta_dIVW<-sum(beta.outcome[ind]*beta.exposure[ind]/(se.outcome[ind])^2)/sum((beta.exposure[ind]^2-se.exposure[ind]^2)/(se.outcome[ind])^2)
+    se.ratio<-se.exposure/se.outcome
+    mu<-beta.exposure/se.exposure
+    condition<-(mean((mu[ind])^2)-1)*sqrt(length(ind))/max(1,lambda^2)
+    tau.square<-0
+    if(over.dispersion){
+      beta_dIVW_0<-sum(beta.outcome*beta.exposure/(se.outcome)^2)/sum((beta.exposure^2-se.exposure^2)/(se.outcome)^2)
+      tau.square<-sum(((beta.outcome-beta_dIVW_0*beta.exposure)^2-se.outcome^2-beta_dIVW_0^2*se.exposure^2)/se.outcome^2)/sum(se.outcome^(-2))
+    }
+    V1<-sum((se.ratio^2*mu^2+beta_dIVW^2*se.ratio^4*(mu^2+1)+tau.square*se.ratio^2/se.outcome^2*mu^2)[ind])
+    V2<-sum((se.ratio^2*(mu^2-1))[ind])
+    var_dIVW<-V1/V2^2
+    se_dIVW<-sqrt(var_dIVW)
+    c_alpha<-qnorm(alpha/2,lower.tail = FALSE)
+    CI_dIVW.lower<-beta_dIVW-c_alpha*se_dIVW
+    CI_dIVW.upper<-beta_dIVW+c_alpha*se_dIVW
+    if(diagnostics){
+      t<-(beta.outcome-beta_dIVW*beta.exposure)/sqrt(se.outcome^2+tau.square+beta_dIVW^2*se.exposure^2)
+      qqnorm(t)
+      qqline(t)
+    }
+  } else {
+    gen_cov <- gen_cor * se.exposure * se.outcome
+    beta_dIVW<-sum((beta.outcome[ind]*beta.exposure[ind]-gen_cov[ind])/(se.outcome[ind])^2)/sum((beta.exposure[ind]^2-se.exposure[ind]^2)/(se.outcome[ind])^2)
+    se.ratio<-se.exposure/se.outcome
+    cse.ratio<-gen_cov/se.outcome
+    mu<-beta.exposure/se.exposure
+    condition<-(mean((mu[ind])^2)-1)*sqrt(length(ind))/max(1,lambda^2)
+    V1<-sum(((1+beta_dIVW^2*se.ratio^2-2*beta_dIVW*cse.ratio^2)*beta.exposure^2/se.outcome^2+beta_dIVW^2*se.ratio^4-2*se.ratio^2*cse.ratio^2*beta_dIVW+(1+4*beta_dIVW*cse.ratio)*cse.ratio^4)[ind])
+    V2<-sum((se.ratio^2*(mu^2-1))[ind])
+    var_dIVW<-V1/V2^2
+    se_dIVW<-sqrt(var_dIVW)
+    c_alpha<-qnorm(alpha/2,lower.tail = FALSE)
+    CI_dIVW.lower<-beta_dIVW-c_alpha*se_dIVW
+    CI_dIVW.upper<-beta_dIVW+c_alpha*se_dIVW
+    if(diagnostics){
+      t<-(beta.outcome-beta_dIVW*beta.exposure)/sqrt(se.outcome^2+beta_dIVW^2*se.exposure^2-2*beta_dIVW*gen_cov)
+      qqnorm(t)
+      qqline(t)
+    }
   }
   return(list(beta.hat=beta_dIVW,beta.se=se_dIVW,condition=condition,tau.square=tau.square,n.IV=length(ind),IV=ind))
 }
