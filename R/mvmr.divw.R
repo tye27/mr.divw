@@ -16,7 +16,6 @@
 #' \item{iv_strength_parameter}{The minimum eigenvalue of the sample IV strength matrix, which quantifies the IV strength in the sample}
 #' \item{phi_selected}{The selected tuning parameter for the adIVW estimator}
 #' \item{tau.square}{Overdispersion parameter if \code{over.dispersion=TRUE}}
-#' @import MVMR
 #' @export
 #'
 #' @examples

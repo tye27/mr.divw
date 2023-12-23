@@ -10,7 +10,6 @@
 #' \item{beta.hat}{Estimated direct effects of each exposure on the outcome}
 #' \item{beta.se}{Estimated standard errors of beta.hat}
 #' \item{iv_strength_parameter}{The minimum eigenvalue of the sample IV strength matrix, which quantifies the IV strength in the sample}
-#' @import MVMR
 #' @export
 #'
 #' @examples
