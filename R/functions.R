@@ -109,6 +109,7 @@ mr.divw<-function(beta.exposure, beta.outcome, se.exposure, se.outcome, alpha=0.
     c_alpha<-qnorm(alpha/2,lower.tail = FALSE)
     CI_dIVW.lower<-beta_dIVW-c_alpha*se_dIVW
     CI_dIVW.upper<-beta_dIVW+c_alpha*se_dIVW
+    tau.square <- NULL # current version does not support estimation of overdispersion parameter in the case with overlapping datasets
     if(diagnostics){
       t<-(beta.outcome-beta_dIVW*beta.exposure)/sqrt(se.outcome^2+beta_dIVW^2*se.exposure^2-2*beta_dIVW*gen_cov)
       qqnorm(t)
