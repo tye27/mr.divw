@@ -41,7 +41,7 @@ out.file <- paste0("data_csv/cardiogramplusc4d_ukbb_cad.csv")
 hdl_subfractions <- getInput(sel.files, exp.files, out.file,
                 plink_exe = './plink', plink_refdat = "ld_files/data_maf0.01_rs", 
                 max.p.thres = 1 * (10^(-4)), cal.cor = TRUE, get.marker.candidates = FALSE)
-save(hdl_subfractions, file = "multivariate_data_medium.rda")
+save(hdl_subfractions, file = "hdl_subfractions.rda")
 ```
 
 According to [GRAPPLE](https://github.com/jingshuw/GRAPPLE), this function extracts all independent SNPs whose selection p-values do not exceed 1e-04. It returns three elements. One is 'data' which is a data frame of the summary statistics of the selected SNPs, the other is 'marker.data' which is a data frame for all candidate marker SNPs (this will be empty, because we set ```markder.data = FALSE```). The third element is the estimated correlation matrix for the GWAS cohorts, which can then be used as the input for *mr.divw* and *mvmr.divw* in the case with overlapping datasets.
