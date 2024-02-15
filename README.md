@@ -2,7 +2,7 @@
 
 *mr.divw* is an R package for summary-data Mendelian randomization (MR) and multivariable Mendelian randomization (MVMR) using the Debiased Inverse-Variance Weighted (dIVW) Estimator. The dIVW estimator is a simple modification of the popular IVW estimator, that has an explicit form and is robust to many weak instruments. The latest version allows for overlapping exposure and outcome datasets.
 
-For details of the methods, please refer to our manuscripts [Ye. et al (2021)](https://arxiv.org/pdf/1911.09802.pdf) and [Wu. et al (2023)](https://arxiv.org/abs/2402.00307).
+For details of the methods, please refer to our manuscripts [Ye. et al (2021)](https://arxiv.org/pdf/1911.09802.pdf) and [Wu. et al (2024)](https://arxiv.org/abs/2402.00307).
 
 ## Installation
 
