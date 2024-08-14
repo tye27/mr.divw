@@ -81,7 +81,7 @@ mvmr.divw <- function(beta.exposure, se.exposure, beta.outcome, se.outcome, phi_
   MV_eigen <- eigen(MV)
   # multivariable (a)dIVW estimator
   if (is.null(phi_cand)) {
-    phi_cand <- c(0, exp(seq(0, 15, by = 0.5) - min(iv_strength_parameter)/2))
+    phi_cand <- c(0, exp(seq(0, 17, by = 0.5) - min(iv_strength_parameter)))
   }
   phi_length <- length(phi_cand)
   MV.l.inv.long <- Reduce(rbind, lapply(1:phi_length, function(l) {
