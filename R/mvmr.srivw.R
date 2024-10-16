@@ -1,11 +1,11 @@
-#'  Perform debiased adjusted inverse-variance weighted (adIVW) estimator for two-sample summary-data multivariable Mendelian randomization
+#'  Perform spectral regularized inverse-variance weighted (adIVW) estimator for summary-data multivariable Mendelian randomization
 #'
 #'
 #' @param beta.exposure A data.frame or matrix. Each row contains the estimated marginal effect of a SNP on K exposures, usually obtained from a GWAS
 #' @param se.exposure A data.frame or matrix of estimated standard errors of beta.exposure
 #' @param beta.outcome A vector of the estimated marginal effect of a SNP on outcome, usually obtained from a GWAS
 #' @param se.outcome A vector of estimated standard errors of beta.outcome
-#' @param phi_cand A vector of tuning parameters for adIVW estimator. Default is 0, meaning that dIVW estimator is performed. To use the recommended set for the tuning parameter, simply set phi_cand = NULL.
+#' @param phi_cand A vector of tuning parameters for SRIVW estimator. Default is 0. To use the recommended set for the tuning parameter, simply set phi_cand = NULL.
 #' @param over.dispersion Should the model consider balanced horizontal pleiotropy? Default is FALSE.
 #' @param overlap Should the model consider overlapping exposure and outcome datasets? Default is FALSE.
 #' @param gen_cor If overlap = FALSE, provide a K-by-K matrix for the estimated shared correlation matrix between the effect of the genetic variants on each exposure, where K is the number of exposure. If overlap = TRUE, provide a (K+1)-by-(K+1) matrix for the estimated shared correlation matrix between the effect of the genetic variants on each exposure and the outcome, where the last index position corresponds to the outcome.  The correlations can either be estimated, be assumed to be zero, or fixed at zero. Default input is NULL, meaning that an identity matrix is used as the correlation matrix.
@@ -14,7 +14,7 @@
 #' \item{beta.hat}{Estimated direct effects of each exposure on the outcome}
 #' \item{beta.se}{Estimated standard errors of beta.hat}
 #' \item{iv_strength_parameter}{The minimum eigenvalue of the sample IV strength matrix, which quantifies the IV strength in the sample}
-#' \item{phi_selected}{The selected tuning parameter for the adIVW estimator}
+#' \item{phi_selected}{The selected tuning parameter for the SRIVW estimator}
 #' \item{tau.square}{Overdispersion parameter if \code{over.dispersion=TRUE}}
 #' @export
 #'
@@ -35,7 +35,7 @@
 #' over.dispersion = FALSE,
 #' overlap = TRUE)
 #'
-mvmr.divw <- function(beta.exposure, se.exposure, beta.outcome, se.outcome, phi_cand=0, over.dispersion = FALSE, overlap = FALSE, gen_cor = NULL) {
+mvmr.srivw <- function(beta.exposure, se.exposure, beta.outcome, se.outcome, phi_cand=0, over.dispersion = FALSE, overlap = FALSE, gen_cor = NULL) {
   if (ncol(beta.exposure) <= 1 | ncol(se.exposure) <= 1) {stop("this function is developed for multivariable MR")}
   K <- ncol(beta.exposure)
   if (is.null(gen_cor)) {
@@ -88,74 +88,74 @@ mvmr.divw <- function(beta.exposure, se.exposure, beta.outcome, se.outcome, phi_
     MV_eigen$vectors %*% diag(1/(MV_eigvalues + phi_cand[l]/MV_eigvalues)) %*% t(MV_eigen$vectors)}
   ))
   if (overlap == FALSE) {# (a)dIVW for independent datasets
-      beta.est <- MV.l.inv.long %*% t(beta.exposure) %*% W %*% (beta.outcome)
-      prof.lik <- sapply(1:phi_length, function(l) {
-            beta.hat <- beta.est[(1+(l-1)*K):(l*K)]
-            bvb <- sapply(1:p, function(j) t(beta.hat) %*% Vj[[j]] %*% beta.hat)
-            if (over.dispersion) {
-              tau2 <- Reduce("+",lapply(1:p, function(j) {
-                      v <- Vj[[j]] * (se.outcome[j]^(-2))
-                      (beta.outcome[j] - beta.exposure[j,] %*% beta.hat)^2*se.outcome[j]^(-2) - 1 - as.numeric(t(beta.hat) %*% v %*% beta.hat)
-            }))/sum(diag(W))
-              tau2 <- as.numeric(tau2)
-            } else {
-              tau2 <- 0
-            }
-            S <- diag(1/(se.outcome^2 + bvb + tau2))
-            1/p * t(beta.outcome - beta.exposure %*% beta.hat) %*% S %*%
-              (beta.outcome - beta.exposure %*% beta.hat)})
-      phi_selected <- phi_cand[which.min(prof.lik)]
-      MV.l.inv <- MV_eigen$vectors %*% diag(1/(MV_eigvalues + phi_selected/MV_eigvalues)) %*% t(MV_eigen$vectors)
-      mvmr.adIVW <- MV.l.inv %*% t(beta.exposure) %*% W %*% beta.outcome
+    beta.est <- MV.l.inv.long %*% t(beta.exposure) %*% W %*% (beta.outcome)
+    prof.lik <- sapply(1:phi_length, function(l) {
+      beta.hat <- beta.est[(1+(l-1)*K):(l*K)]
+      bvb <- sapply(1:p, function(j) t(beta.hat) %*% Vj[[j]] %*% beta.hat)
       if (over.dispersion) {
-        tau2_adivw <- Reduce("+",lapply(1:p, function(j) {
+        tau2 <- Reduce("+",lapply(1:p, function(j) {
           v <- Vj[[j]] * (se.outcome[j]^(-2))
-          (beta.outcome[j] - beta.exposure[j,] %*% mvmr.adIVW)^2*se.outcome[j]^(-2) - 1 - as.numeric(t(mvmr.adIVW) %*% v %*% mvmr.adIVW)
-          }))/sum(diag(W))
-        tau2_adivw <- as.numeric(tau2_adivw)
+          (beta.outcome[j] - beta.exposure[j,] %*% beta.hat)^2*se.outcome[j]^(-2) - 1 - as.numeric(t(beta.hat) %*% v %*% beta.hat)
+        }))/sum(diag(W))
+        tau2 <- as.numeric(tau2)
       } else {
-        tau2_adivw <- 0
+        tau2 <- 0
       }
-      adIVW_Vt <- Reduce("+",lapply(1:p, function(j) {
-        m <- beta.exposure[j,] %*% t(beta.exposure[j,]) * (se.outcome[j]^(-2))
-        v <- Vj[[j]]*(se.outcome[j]^(-2))
-        bvb <- as.numeric(t(mvmr.adIVW) %*% v %*% mvmr.adIVW)
-        vbbv <- v %*% mvmr.adIVW %*% t(mvmr.adIVW) %*% v
-        m*(1+bvb+tau2_adivw*se.outcome[j]^(-2)) + vbbv
-      }))
-      mvmr.adIVW.se <- sqrt(diag(MV.l.inv%*%adIVW_Vt%*%MV.l.inv))
+      S <- diag(1/(se.outcome^2 + bvb + tau2))
+      1/p * t(beta.outcome - beta.exposure %*% beta.hat) %*% S %*%
+        (beta.outcome - beta.exposure %*% beta.hat)})
+    phi_selected <- phi_cand[which.min(prof.lik)]
+    MV.l.inv <- MV_eigen$vectors %*% diag(1/(MV_eigvalues + phi_selected/MV_eigvalues)) %*% t(MV_eigen$vectors)
+    mvmr.adIVW <- MV.l.inv %*% t(beta.exposure) %*% W %*% beta.outcome
+    if (over.dispersion) {
+      tau2_adivw <- Reduce("+",lapply(1:p, function(j) {
+        v <- Vj[[j]] * (se.outcome[j]^(-2))
+        (beta.outcome[j] - beta.exposure[j,] %*% mvmr.adIVW)^2*se.outcome[j]^(-2) - 1 - as.numeric(t(mvmr.adIVW) %*% v %*% mvmr.adIVW)
+      }))/sum(diag(W))
+      tau2_adivw <- as.numeric(tau2_adivw)
+    } else {
+      tau2_adivw <- 0
+    }
+    adIVW_Vt <- Reduce("+",lapply(1:p, function(j) {
+      m <- beta.exposure[j,] %*% t(beta.exposure[j,]) * (se.outcome[j]^(-2))
+      v <- Vj[[j]]*(se.outcome[j]^(-2))
+      bvb <- as.numeric(t(mvmr.adIVW) %*% v %*% mvmr.adIVW)
+      vbbv <- v %*% mvmr.adIVW %*% t(mvmr.adIVW) %*% v
+      m*(1+bvb+tau2_adivw*se.outcome[j]^(-2)) + vbbv
+    }))
+    mvmr.adIVW.se <- sqrt(diag(MV.l.inv%*%adIVW_Vt%*%MV.l.inv))
   } else {
-      # (a)dIVW allowing for overlapping datasets
-      Adj_term <- Reduce("+",lapply(1:p, function(j) {Vj[[j]][1:K,(K+1)] * se.outcome[j]^{-2}}))
-      beta.est <- MV.l.inv.long %*% t(beta.exposure) %*% W %*% (beta.outcome) - MV.l.inv.long %*% Adj_term
-      prof.lik <- sapply(1:phi_length, function(l) {
-        beta.hat <- beta.est[(1+(l-1)*K):(l*K)]
-        bvb.test <- sapply(1:p, function(j) t(beta.hat) %*% Vj[[j]][1:K,1:K] %*% beta.hat)
-        bvxy <- sapply(1:p, function(j) {
-          sigmaxy <- Vj[[j]][1:K,K+1]
-          (t(beta.hat) %*% sigmaxy)[1,1]
-        })
-        S <- diag(1/(se.outcome^2 + bvb.test - 2 * bvxy))
-        1/p * t(beta.outcome - beta.exposure %*% beta.hat) %*% S %*%
-          (beta.outcome - beta.exposure %*% beta.hat)})
-      phi_selected <- phi_cand[which.min(prof.lik)]
-      MV.l.inv <- MV_eigen$vectors %*% diag(1/(MV_eigvalues + phi_selected/MV_eigvalues)) %*% t(MV_eigen$vectors)
-      mvmr.adIVW <- MV.l.inv %*% t(beta.exposure) %*% W %*% beta.outcome - MV.l.inv %*% Adj_term
-      adIVW_Vt_overlap <- Reduce("+",lapply(1:p, function(j) {
-        m <- beta.exposure[j,] %*% t(beta.exposure[j,]) * (se.outcome[j]^(-2))
-        v <- Vj[[j]][1:K,1:K] * (se.outcome[j]^(-2))
-        bvb <- as.numeric(t(mvmr.adIVW) %*% v %*% mvmr.adIVW)
-        vbbv <- v %*% mvmr.adIVW %*% t(mvmr.adIVW) %*% v
+    # (a)dIVW allowing for overlapping datasets
+    Adj_term <- Reduce("+",lapply(1:p, function(j) {Vj[[j]][1:K,(K+1)] * se.outcome[j]^{-2}}))
+    beta.est <- MV.l.inv.long %*% t(beta.exposure) %*% W %*% (beta.outcome) - MV.l.inv.long %*% Adj_term
+    prof.lik <- sapply(1:phi_length, function(l) {
+      beta.hat <- beta.est[(1+(l-1)*K):(l*K)]
+      bvb.test <- sapply(1:p, function(j) t(beta.hat) %*% Vj[[j]][1:K,1:K] %*% beta.hat)
+      bvxy <- sapply(1:p, function(j) {
         sigmaxy <- Vj[[j]][1:K,K+1]
-        A1 <- sigmaxy %*% t(sigmaxy) * se.outcome[j]^(-4)
-        A2 <- Vj[[j]][1:K,1:K] %*% mvmr.adIVW %*% t(sigmaxy) * se.outcome[j]^(-4)
-        A3 <- sigmaxy %*% t(mvmr.adIVW) %*% Vj[[j]][1:K,1:K] * se.outcome[j]^(-4)
-        A4 <- (t(mvmr.adIVW) %*% sigmaxy * se.outcome[j]^(-2))[1,1] *  m
-        A5 <- (t(mvmr.adIVW) %*% sigmaxy * se.outcome[j]^(-2))[1,1] *  sigmaxy %*% t(sigmaxy) * se.outcome[j]^(-4)
-        m*(1+bvb) + vbbv + A1 - A2 - A3 - 2 * A4 + 4 * A5
-      }))
-      mvmr.adIVW.se <- sqrt(diag(MV.l.inv%*%adIVW_Vt_overlap%*%MV.l.inv))
-      tau2_adivw <- NULL # current version does not allow for over-dispersion and overlapping datasets at the same time.
+        (t(beta.hat) %*% sigmaxy)[1,1]
+      })
+      S <- diag(1/(se.outcome^2 + bvb.test - 2 * bvxy))
+      1/p * t(beta.outcome - beta.exposure %*% beta.hat) %*% S %*%
+        (beta.outcome - beta.exposure %*% beta.hat)})
+    phi_selected <- phi_cand[which.min(prof.lik)]
+    MV.l.inv <- MV_eigen$vectors %*% diag(1/(MV_eigvalues + phi_selected/MV_eigvalues)) %*% t(MV_eigen$vectors)
+    mvmr.adIVW <- MV.l.inv %*% t(beta.exposure) %*% W %*% beta.outcome - MV.l.inv %*% Adj_term
+    adIVW_Vt_overlap <- Reduce("+",lapply(1:p, function(j) {
+      m <- beta.exposure[j,] %*% t(beta.exposure[j,]) * (se.outcome[j]^(-2))
+      v <- Vj[[j]][1:K,1:K] * (se.outcome[j]^(-2))
+      bvb <- as.numeric(t(mvmr.adIVW) %*% v %*% mvmr.adIVW)
+      vbbv <- v %*% mvmr.adIVW %*% t(mvmr.adIVW) %*% v
+      sigmaxy <- Vj[[j]][1:K,K+1]
+      A1 <- sigmaxy %*% t(sigmaxy) * se.outcome[j]^(-4)
+      A2 <- Vj[[j]][1:K,1:K] %*% mvmr.adIVW %*% t(sigmaxy) * se.outcome[j]^(-4)
+      A3 <- sigmaxy %*% t(mvmr.adIVW) %*% Vj[[j]][1:K,1:K] * se.outcome[j]^(-4)
+      A4 <- (t(mvmr.adIVW) %*% sigmaxy * se.outcome[j]^(-2))[1,1] *  m
+      A5 <- (t(mvmr.adIVW) %*% sigmaxy * se.outcome[j]^(-2))[1,1] *  sigmaxy %*% t(sigmaxy) * se.outcome[j]^(-4)
+      m*(1+bvb) + vbbv + A1 - A2 - A3 - 2 * A4 + 4 * A5
+    }))
+    mvmr.adIVW.se <- sqrt(diag(MV.l.inv%*%adIVW_Vt_overlap%*%MV.l.inv))
+    tau2_adivw <- NULL # current version does not allow for over-dispersion and overlapping datasets at the same time.
   }
   return(list(beta.hat = mvmr.adIVW,
               beta.se = mvmr.adIVW.se,
