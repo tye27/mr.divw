@@ -1,4 +1,4 @@
-#'  Perform spectral regularized inverse-variance weighted (adIVW) estimator for summary-data multivariable Mendelian randomization
+#'  Perform spectral regularized inverse-variance weighted (SRIVW) estimator for summary-data multivariable Mendelian randomization
 #'
 #'
 #' @param beta.exposure A data.frame or matrix. Each row contains the estimated marginal effect of a SNP on K exposures, usually obtained from a GWAS
@@ -26,7 +26,7 @@
 #' beta.outcome <- hdl_subfractions$data$gamma_out1
 #' se.outcome <- hdl_subfractions$data$se_out1
 #' P <- hdl_subfractions$cor.mat[c(1:4,10),c(1:4,10)] # make sure the last index corresponds to the outcome
-#' mvmr.divw(beta.exposure = beta.exposure,
+#' mvmr.srivw(beta.exposure = beta.exposure,
 #' se.exposure = se.exposure,
 #' beta.outcome = beta.outcome,
 #' se.outcome = se.outcome,
