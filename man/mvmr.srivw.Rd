@@ -2,7 +2,7 @@
 % Please edit documentation in R/mvmr.srivw.R
 \name{mvmr.srivw}
 \alias{mvmr.srivw}
-\title{Perform spectral regularized inverse-variance weighted (adIVW) estimator for summary-data multivariable Mendelian randomization}
+\title{Perform spectral regularized inverse-variance weighted (SRIVW) estimator for summary-data multivariable Mendelian randomization}
 \usage{
 mvmr.srivw(
   beta.exposure,
@@ -41,7 +41,7 @@ A list with elements
 \item{tau.square}{Overdispersion parameter if \code{over.dispersion=TRUE}}
 }
 \description{
-Perform spectral regularized inverse-variance weighted (adIVW) estimator for summary-data multivariable Mendelian randomization
+Perform spectral regularized inverse-variance weighted (SRIVW) estimator for summary-data multivariable Mendelian randomization
 }
 \examples{
 data("hdl_subfractions")
@@ -51,7 +51,7 @@ se.exposure <- hdl_subfractions$data[,c("se_exp1","se_exp2","se_exp3","se_exp4")
 beta.outcome <- hdl_subfractions$data$gamma_out1
 se.outcome <- hdl_subfractions$data$se_out1
 P <- hdl_subfractions$cor.mat[c(1:4,10),c(1:4,10)] # make sure the last index corresponds to the outcome
-mvmr.divw(beta.exposure = beta.exposure,
+mvmr.srivw(beta.exposure = beta.exposure,
 se.exposure = se.exposure,
 beta.outcome = beta.outcome,
 se.outcome = se.outcome,
