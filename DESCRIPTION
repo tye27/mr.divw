@@ -6,7 +6,7 @@ Author: c(person("Ting", "Ye", , "tingye1@uw.edu", role = c("aut", "cre")),
           person("Yinxiang", "Wu", , "wuyx@uw.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-7806-6999")))
 Maintainer: The package maintainer <yourself@somewhere.net>
-Description: Perform causal effect estimation for summary-data Mendelian randomization using IVW, dIVW and adIVW estimators.
+Description: Perform causal effect estimation for summary-data Mendelian randomization using IVW, dIVW and MV-SRIVW estimators.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
