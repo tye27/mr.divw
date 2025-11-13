@@ -83,6 +83,10 @@ mr.divw<-function(beta.exposure, beta.outcome, se.exposure, se.outcome, alpha=0.
       beta_dIVW_0<-sum(beta.outcome*beta.exposure/(se.outcome)^2)/sum((beta.exposure^2-se.exposure^2)/(se.outcome)^2)
       tau.square<-sum(((beta.outcome-beta_dIVW_0*beta.exposure)^2-se.outcome^2-beta_dIVW_0^2*se.exposure^2)/se.outcome^2)/sum(se.outcome^(-2))
     }
+    if (tau.square < 0) {
+      tau.square <- 0
+      warning("Estimated overdispersion parameter < 0. Fixed at 0 instead.")
+    }
     V1<-sum((se.ratio^2*mu^2+beta_dIVW^2*se.ratio^4*(mu^2+1)+tau.square*se.ratio^2/se.outcome^2*mu^2)[ind])
     V2<-sum((se.ratio^2*(mu^2-1))[ind])
     var_dIVW<-V1/V2^2
