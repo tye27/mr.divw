@@ -70,6 +70,9 @@ mvmr.srivw <- function(beta.exposure, se.exposure, beta.outcome, se.outcome, phi
     beta.exposure.V <- Vj_root_inv[[j]] %*% beta.exposure[j,]
     beta.exposure.V %*% t(beta.exposure.V)})) - p*diag(K)
   iv_strength_parameter <- min(eigen(IV_strength_matrix/sqrt(p))$values)
+  if (iv_strength_parameter < 7) {
+    warning("Sample IV strength parameter is too small, indicating potential weak instrument bias and incorrect inference.")
+  }
   # get V matrix
   V <- Reduce("+",lapply(1:p, function(j) {Vj[[j]][1:K,1:K] * (se.outcome[j]^(-2))}))
   # get M matrix
@@ -113,6 +116,10 @@ mvmr.srivw <- function(beta.exposure, se.exposure, beta.outcome, se.outcome, phi
         (beta.outcome[j] - beta.exposure[j,] %*% mvmr.adIVW)^2*se.outcome[j]^(-2) - 1 - as.numeric(t(mvmr.adIVW) %*% v %*% mvmr.adIVW)
       }))/sum(diag(W))
       tau2_adivw <- as.numeric(tau2_adivw)
+      if (tau2_adivw < 0) {
+        tau2_adivw <- 0
+        warning("Estimated overdispersion parameter < 0. Fixed at 0 instead.")
+      }
     } else {
       tau2_adivw <- 0
     }
